@@ -35,8 +35,9 @@ public class WeatherManager : MonoBehaviour
     {
         WeatherData = await DataManager.LoadWeather();
         _sityManager.SetSity(WeatherData.name);
-        Debug.Log(WeatherData.LastDataUpdate.Subtract(DateTime.Now));
-        if (WeatherData.LastDataUpdate.Subtract(DateTime.Now) >= new TimeSpan(1, 0, 0))
+        Debug.Log(DateTime.Now.Subtract(WeatherData.LastDataUpdate));
+        Debug.Log(DateTime.Now.Subtract(WeatherData.LastDataUpdate) >= new TimeSpan(0,0,0));
+        if (DateTime.Now.Subtract(WeatherData.LastDataUpdate) >= TimeSpan.FromSeconds(30))
         {
             Debug.Log("Данные устарели");
             WeatherData = await RESTApi.GetWeaher(_sityManager.GetSityNameList());
