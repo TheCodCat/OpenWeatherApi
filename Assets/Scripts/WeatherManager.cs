@@ -12,8 +12,10 @@ public class WeatherManager : MonoBehaviour
 
     [Header("Мусор")]
     [SerializeField] private RawImage _currentWeatherIcon;
-    [SerializeField] private Texture2D _currentWeatherTexture;
-    [SerializeField] private TMP_InputField _sityInputField;
+    [SerializeField] private SityManager _sityManager;
+    [SerializeField] private TextAsset _sityTextAsset;
+    [SerializeField] private Animator _animatorRefresh;
+    private Texture2D _currentWeatherTexture;
     [Header("Text")]
     [SerializeField] private TMP_Text _currentClouds;
     [SerializeField] private TMP_Text _description;
@@ -32,29 +34,52 @@ public class WeatherManager : MonoBehaviour
     private async void Start()
     {
         WeatherData = await DataManager.LoadWeather();
-        Debug.Log(WeatherData.GetJson());
+        _sityManager.SetSity(WeatherData.name);
         Debug.Log(WeatherData.LastDataUpdate.Subtract(DateTime.Now));
-        if (WeatherData.LastDataUpdate.Subtract(DateTime.Now) >= new TimeSpan(0, 1, 0))
+        if (WeatherData.LastDataUpdate.Subtract(DateTime.Now) >= new TimeSpan(1, 0, 0))
         {
             Debug.Log("Данные устарели");
-            WeatherData = await RESTApi.GetWeaher(_sityInputField.text);
-            Debug.Log(WeatherData.GetJson());
+            WeatherData = await RESTApi.GetWeaher(_sityManager.GetSityNameList());
         }
         await UpdateWeather();
     }
+
     public async void UpdateWeatherButton()
     {
-        WeatherData = await RESTApi.GetWeaher(_sityInputField.text);
+        _animatorRefresh.SetBool("Refresh",true);
+        WeatherData = await RESTApi.GetWeaher(_sityManager.GetSityNameList());
+        _animatorRefresh.SetBool("Refresh", false);
         await UpdateWeather();
         await DataManager.SaveWeather(WeatherData);
     }
+
+    public async void UpdateWeatherButtonName(string sityname)
+    {
+        _animatorRefresh?.SetBool("Refresh", true);
+        try
+        {
+            string name = _sityManager.GetSitiNameToInput(sityname);
+
+            WeatherData = await RESTApi.GetWeaher(name);
+
+            await UpdateWeather();
+            _sityManager.SetSity(name);
+            await DataManager.SaveWeather(WeatherData);
+        }
+        catch (NullReferenceException ex)
+        {
+            Debug.Log("Неправильно указан город");
+        }
+        _animatorRefresh?.SetBool("Refresh", false);
+        
+    }
+
     private async UniTask UpdateWeather()
     {
         try
         {
-            _sityInputField.text = WeatherData.name;
             _description.text = $"| {_weatherData.weather[0].description} |";
-            _currentData.text = $"Погода {WeatherData.name} на:| {WeatherData.LastDataUpdate.Day}.{WeatherData.LastDataUpdate.Month}.{WeatherData.LastDataUpdate.Year} |";
+            _currentData.text = $"Погода {WeatherData.name}\nна: | {WeatherData.LastDataUpdate.Day}.{WeatherData.LastDataUpdate.Month}.{WeatherData.LastDataUpdate.Year} |";
             _currentVisibility.text = $"Видимость:| {_weatherData.visibility} |";
             _temperatureText.text = $"Температура:| {WeatherData.main.temp} | \nMin:| {WeatherData.main.temp_min} |\nMax:| {WeatherData.main.temp_max} |\nОщущается: | {WeatherData.main.feels_like} |";
             _currentClouds.text = $"Облачность:| {WeatherData.clouds.all} |";
@@ -64,7 +89,6 @@ public class WeatherManager : MonoBehaviour
             _currentWeatherTexture = new Texture2D(500,500);
             _currentWeatherTexture.LoadImage(bytes);
             _currentWeatherTexture.Apply();
-            Debug.Log(_currentWeatherTexture.width);
             _currentWeatherIcon.texture = _currentWeatherTexture;
         }
         catch (NullReferenceException ex)

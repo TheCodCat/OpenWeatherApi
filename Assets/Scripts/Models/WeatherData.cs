@@ -17,14 +17,14 @@ namespace Assets.Scripts.Models
 }
 
 [System.Serializable]
-public class Coord
+public struct Coord
 {
     public float lon;
     public float lat;
 }
 
 [System.Serializable]
-public class Weather
+public struct Weather
 {
     public int id;
     public string main;
@@ -33,7 +33,7 @@ public class Weather
 }
 
 [System.Serializable]
-public class Main
+public struct Main
 {
     public float temp;
     public float feels_like;
@@ -45,7 +45,7 @@ public class Main
 }
 
 [System.Serializable]
-public class Wind
+public struct Wind
 {
     public float speed;
     public int deg;
@@ -53,7 +53,7 @@ public class Wind
 }
 
 [System.Serializable]
-public class Clouds
+public struct Clouds
 {
     public byte all;
 }

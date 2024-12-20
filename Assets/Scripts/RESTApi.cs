@@ -2,7 +2,7 @@ using Assets.Scripts.Models;
 using Cysharp.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json;
-using System;
+using UnityEngine;
 
 public static class RESTApi
 {
@@ -14,7 +14,7 @@ public static class RESTApi
         using HttpResponseMessage httpRequestMessage = await HttpClient.GetAsync($"https://api.openweathermap.org/data/2.5/weather?q={sity}&units=metric&lang=ru&appid={API_KEY}").AsUniTask();
 
         string json = await httpRequestMessage.Content.ReadAsStringAsync().AsUniTask();
-
+        Debug.Log(httpRequestMessage.StatusCode);
         return JsonConvert.DeserializeObject<WeatherData>(json);
     }
 
