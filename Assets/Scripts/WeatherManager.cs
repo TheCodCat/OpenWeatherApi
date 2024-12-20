@@ -31,7 +31,7 @@ public class WeatherManager : MonoBehaviour
         set { _weatherData = value; }
     }
 
-    private async void Start()
+    public async void BootInit()
     {
         WeatherData = await DataManager.LoadWeather();
         _sityManager.SetSity(WeatherData.name);
@@ -43,7 +43,6 @@ public class WeatherManager : MonoBehaviour
         }
         await UpdateWeather();
     }
-
     public async void UpdateWeatherButton()
     {
         _animatorRefresh.SetBool("Refresh",true);
@@ -96,4 +95,5 @@ public class WeatherManager : MonoBehaviour
             Debug.Log("Неправильно указан город");
         }
     }
+
 }

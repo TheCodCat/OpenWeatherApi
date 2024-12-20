@@ -5,6 +5,7 @@ using TMPro;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 
 public class SityManager : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class SityManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown _sityDropdown;
     private string _text => _sitys.text;
 
-    private async void Start()
+    public async void BootInit()
     {
         _sities = JsonConvert.DeserializeObject<IList<Sity>>(_text);
 
@@ -24,6 +25,8 @@ public class SityManager : MonoBehaviour
         }
         _sityDropdown.RefreshShownValue();
         _sityDropdown.interactable = true;
+
+        await UniTask.Yield();
     }
     public string GetSityNameList()
     {
