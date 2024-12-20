@@ -5,6 +5,7 @@ using System;
 using UnityEngine;
 using Newtonsoft.Json;
 using Cysharp.Threading.Tasks;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Assets.Scripts
 {
@@ -16,13 +17,11 @@ namespace Assets.Scripts
 
             using (FileStream fstream = new FileStream(path, FileMode.OpenOrCreate))
             {
-                // преобразуем строку в байты
-                string json = JsonConvert.SerializeObject(weatherData);
-                byte[] buffer = Encoding.Default.GetBytes(json);
-                // запись массива байтов в файл
-                await fstream.WriteAsync(buffer, 0, buffer.Length);
+                BinaryFormatter converter = new BinaryFormatter();
+                converter.Serialize(fstream, weatherData);
                 Console.WriteLine("Текст записан в файл");
             }
+            await UniTask.Yield();
         }
 
         public static async UniTask<WeatherData> LoadWeather()
@@ -32,14 +31,10 @@ namespace Assets.Scripts
 
             using (FileStream fstream = File.OpenRead(path))
             {
-                // выделяем массив для считывания данных из файла
-                byte[] buffer = new byte[fstream.Length];
-                // считываем данные
-                await fstream.ReadAsync(buffer, 0, buffer.Length);
-                // декодируем байты в строку
-                string textFromFile = Encoding.Default.GetString(buffer);
+                BinaryFormatter converter = new BinaryFormatter();
 
-                return JsonConvert.DeserializeObject<WeatherData>(textFromFile);
+                await UniTask.Yield();
+                return (WeatherData)converter.Deserialize(fstream);
             }
         }
     }
