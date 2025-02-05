@@ -18,7 +18,7 @@ public static class RESTApi
         return JsonConvert.DeserializeObject<WeatherData>(json);
     }
 
-    public static async UniTask<byte[]> GetIcon(string numIcon)
+    public static async UniTask<byte[]>GetIcon(string numIcon)
     {
         using HttpResponseMessage httpRequestMessage = await HttpClient.GetAsync($"http://openweathermap.org/img/wn/{numIcon}@4x.png").AsUniTask();
 

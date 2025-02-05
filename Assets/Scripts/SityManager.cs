@@ -9,25 +9,32 @@ using Cysharp.Threading.Tasks;
 
 public class SityManager : MonoBehaviour
 {
-    [SerializeField] private TextAsset _sitys;
     private IList<Sity> _sities;
+    [SerializeField] private TextAsset _asset;
+    private string _json;
     [SerializeField] private TMP_Dropdown _sityDropdown;
-    private string _text => _sitys.text;
 
-    private async UniTask Start()
+    public async UniTask BootInit()
     {
-        _sities = JsonConvert.DeserializeObject<IList<Sity>>(_text);
-        Debug.Log(_sities.Equals(null) ? "Листа нету" : _sities.Count);
-
-        _sityDropdown.interactable = false;
-        foreach (var item in _sities)
+        try
         {
-            _sityDropdown.options.Add(new TMP_Dropdown.OptionData($"| {item.name} | {item.subject}"));
-        }
-        _sityDropdown.RefreshShownValue();
-        _sityDropdown.interactable = true;
+            _sities = JsonConvert.DeserializeObject<IList<Sity>>(_asset.text);
+            Debug.Log(_sities.Equals(null) ? "Листа нету" : _sities.Count);
 
-        await UniTask.Yield();
+            _sityDropdown.interactable = false;
+            foreach (var item in _sities)
+            {
+                _sityDropdown.options.Add(new TMP_Dropdown.OptionData($"| {item.name} | {item.subject}"));
+            }
+            _sityDropdown.RefreshShownValue();
+            _sityDropdown.interactable = true;
+
+            await UniTask.Yield();
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("Произошла ошибка при загрузки бд");
+        }
     }
     public string GetSityNameList()
     {
@@ -35,17 +42,32 @@ public class SityManager : MonoBehaviour
     }
     public string GetSitiNameToInput(string input)
     {
-        var obj = _sities.FirstOrDefault(x => x.name.Contains(input, StringComparison.InvariantCultureIgnoreCase));
-        Debug.Log(obj.name);
-        return obj.name;
+        try
+        {
+            var obj = _sities.FirstOrDefault(x => x.name.Contains(input, StringComparison.InvariantCultureIgnoreCase));
+            SetSity(name);
+            Debug.Log(obj.name);
+            return obj.name;
+        }
+        catch (NullReferenceException ex)
+        {
+            return input;
+        }
     }
 
     public void SetSity(string name)
     {
-        string newname = _sities.FirstOrDefault(x => x.name == name).name;
-        int index = _sities.IndexOf(_sities.FirstOrDefault(x => x.name.Equals(newname, StringComparison.OrdinalIgnoreCase)));
-        _sityDropdown.SetValueWithoutNotify(index);
-        _sityDropdown.RefreshShownValue();
+        try
+        {
+            string newname = _sities.FirstOrDefault(x => x.name == name).name ?? "";
+            int index = _sities.IndexOf(_sities.FirstOrDefault(x => x.name.Equals(newname, StringComparison.OrdinalIgnoreCase)));
+            _sityDropdown.SetValueWithoutNotify(index);
+            _sityDropdown.RefreshShownValue();
+        }
+        catch(NullReferenceException ex)
+        {
+            Debug.Log($"Такого города не найдено {name}");
+        }
     }
 
 }

@@ -13,7 +13,6 @@ public class WeatherManager : MonoBehaviour
     [Header("Мусор")]
     [SerializeField] private RawImage _currentWeatherIcon;
     [SerializeField] private SityManager _sityManager;
-    [SerializeField] private TextAsset _sityTextAsset;
     [SerializeField] private Animator _animatorRefresh;
     private Texture2D _currentWeatherTexture;
     [Header("Text")]
@@ -31,7 +30,7 @@ public class WeatherManager : MonoBehaviour
         set { _weatherData = value; }
     }
 
-    private async UniTask Start()
+    public async UniTask BootInit()
     {
         WeatherData = await DataManager.LoadWeather();
         _sityManager.SetSity(WeatherData.name);
@@ -57,14 +56,14 @@ public class WeatherManager : MonoBehaviour
     public async void UpdateWeatherButtonName(string sityname)
     {
         _animatorRefresh?.SetBool("Refresh", true);
+
         try
         {
             string name = _sityManager.GetSitiNameToInput(sityname);
-
+            Debug.Log(name);
             WeatherData = await RESTApi.GetWeaher(name);
 
             await UpdateWeather();
-            _sityManager.SetSity(name);
             await DataManager.SaveWeather(WeatherData);
         }
         catch (NullReferenceException ex)

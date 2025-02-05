@@ -26,9 +26,15 @@ namespace Assets.Scripts
         {
             Debug.Log($"{Application.persistentDataPath}/data.data");
             string path = $"{Application.persistentDataPath}/data.data";
-            if (!File.Exists(path)) return new WeatherData();
 
-            using (FileStream fstream = File.OpenRead(path))
+            if (!File.Exists(path))
+            {
+                WeatherData weatherData = new WeatherData();
+                weatherData.name = "Абакан";
+                return weatherData;
+            }
+
+            using (FileStream fstream = new FileStream(path, FileMode.Open))
             {
                 BinaryFormatter converter = new BinaryFormatter();
 
