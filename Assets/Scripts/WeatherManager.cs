@@ -31,7 +31,7 @@ public class WeatherManager : MonoBehaviour
         set { _weatherData = value; }
     }
 
-    private async void Start()
+    private async UniTask Start()
     {
         WeatherData = await DataManager.LoadWeather();
         _sityManager.SetSity(WeatherData.name);
@@ -42,6 +42,7 @@ public class WeatherManager : MonoBehaviour
             WeatherData = await RESTApi.GetWeaher(_sityManager.GetSityNameList());
         }
         await UpdateWeather();
+        await UniTask.Yield();
     }
 
     public async void UpdateWeatherButton()

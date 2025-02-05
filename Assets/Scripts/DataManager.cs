@@ -24,6 +24,7 @@ namespace Assets.Scripts
 
         public static async UniTask<WeatherData> LoadWeather()
         {
+            Debug.Log($"{Application.persistentDataPath}/data.data");
             string path = $"{Application.persistentDataPath}/data.data";
             if (!File.Exists(path)) return new WeatherData();
 
